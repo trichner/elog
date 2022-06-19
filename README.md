@@ -25,30 +25,32 @@ go install github.com/trichner/elog
 ```go
 package main
 
-func main() {
-	// create a new logger with the CSV backend
-	logger, err := NewCsvEventLogger(os.Stdout)
+import (
+	"github.com/trichner/elog"
+	"github.com/trichner/elog/csv"
+	"os"
+	"time"
+)
 
+func main() {
+
+	// create a new logger with the CSV backend
+	logger, err := csv.NewCsvEventLogger(os.Stdout)
 	if err != nil {
 		panic(err)
 	}
 
 	// create a new event
-	event := &elog.Event{
-		ID:        uuid.New().String(),
-		Kind:      "user_login",
-		SessionID: uuid.New().String(),
-		Timestamp: time.Now(),
-		Payload: map[string]string{
+	event := elog.NewEventBuilder().
+		WithKind("user_login").
+		WithTimeStamp(time.Now()).
+		WithPayload(map[string]string{
 			"user":   "Alice",
-			"remote": "42.0.0.42",
-		},
-	}
+			"remote": "42.0.4.23",
+		}).
+		Build()
 
-	// ...and log it
-	err = logger.Log(event)
-	if err != nil {
-		panic(err)
-	}
+	// ... and log it!
+	logger.Log(event)
 }
 ```
